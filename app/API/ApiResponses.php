@@ -12,9 +12,10 @@ class ApiResponses
         ];
     }
 
-    public static function responseMessage($message, $code)
+    public static function responseMessage($data, $message, $code)
     {
         return [
+            'data' => $data,
             'message' => $message,
             'code' => $code
         ];

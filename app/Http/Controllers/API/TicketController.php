@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Tickets\Ticket;
-use App\API;
+use App\API\ApiResponses;
 
 class TicketController extends Controller
 {
@@ -49,10 +49,10 @@ class TicketController extends Controller
         } catch (\Exception $e) {
 
             if(config('app.degub')) {
-                return response()->json(['data' => ApiResponses::responseMessage($e->getMessage(), 1010)]);
+                return response()->json(['data' => ApiResponses::responseMessage($data, $e->getMessage(), 1010)]);
             }
 
-            return response()->json(['data' => ApiResponses::responseMessage('Error saving ticket', 1010)]);
+            return response()->json(['data' => ApiResponses::responseMessage($data, 'Error saving ticket', 1010)]);
         }
     }
 }
