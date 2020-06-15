@@ -24,16 +24,15 @@ class TicketController extends Controller
     {
         try {
 
-            $data = $this->ticket->paginate(5);
-            return response()->json(['data' => $data], 200);
+            return response()->json(ApiResponses::responseData($this->ticket->paginate(5), 200));
 
         } catch (\Exception $e) {
 
             if(config('app.degub')) {
-                return response()->json(['data' => ApiMessages::responseMessage($e->getMessage(), 1010)]);
+                return response()->json(['data' => ApiResponses::responseMessage($e->getMessage(), 1010)]);
             }
 
-            return response()->json(['data' => ApiMessages::responseMessage('Error listing ticket', 1010)]);
+            return response()->json(['data' => ApiResponses::responseMessage('Error listing ticket', 1010)]);
 
         }
     }
@@ -50,10 +49,10 @@ class TicketController extends Controller
         } catch (\Exception $e) {
 
             if(config('app.degub')) {
-                return response()->json(['data' => ApiMessages::responseMessage($e->getMessage(), 1010)]);
+                return response()->json(['data' => ApiResponses::responseMessage($e->getMessage(), 1010)]);
             }
 
-            return response()->json(['data' => ApiMessages::responseMessage('Error saving ticket', 1010)]);
+            return response()->json(['data' => ApiResponses::responseMessage('Error saving ticket', 1010)]);
         }
     }
 }
