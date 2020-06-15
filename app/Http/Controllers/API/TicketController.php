@@ -28,7 +28,7 @@ class TicketController extends Controller
 
         } catch (\Exception $e) {
 
-            if(config('app.degub')) {
+            if(config('app.debug')) {
                 return response()->json(['data' => ApiResponses::responseMessage($e->getMessage(), 1010)]);
             }
 
@@ -48,7 +48,7 @@ class TicketController extends Controller
 
         } catch (\Exception $e) {
 
-            if(config('app.degub')) {
+            if(config('app.debug')) {
                 return response()->json(['data' => ApiResponses::responseMessage($data, $e->getMessage(), 1010)]);
             }
 
