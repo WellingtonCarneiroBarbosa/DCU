@@ -19,11 +19,23 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::namespace('API')->name('api.')->group(function (){
+    /**
+     * Tickets routes
+     * 
+     */
     Route::prefix('tickets')->name('tickets.')->group(function (){
         Route::get('/', 'TicketController@index')->name('index');
 
         Route::get('/{id}', 'TicketController@show')->name('show');
 
         Route::post('/', 'TicketController@store')->name('store');
+    });
+
+    /**
+     * Demands routes
+     * 
+     */
+    Route::prefix('demands')->name('demands.')->group(function (){
+        Route::get('/', 'DemandController@index')->name('index');
     });
 });
