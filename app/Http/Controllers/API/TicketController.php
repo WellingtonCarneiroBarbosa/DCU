@@ -49,10 +49,10 @@ class TicketController extends Controller
         } catch (\Exception $e) {
 
             if(config('app.debug')) {
-                return response()->json(['data' => ApiResponses::responseMessage($data, $e->getMessage(), 1010)]);
+                return response()->json(['data' => ApiResponses::responseMessageWithData($data, $e->getMessage(), 1010)]);
             }
 
-            return response()->json(['data' => ApiResponses::responseMessage($data, 'Error saving ticket', 1010)]);
+            return response()->json(['data' => ApiResponses::responseMessageWithData($data, 'Error saving ticket', 1010)]);
         }
     }
 }
