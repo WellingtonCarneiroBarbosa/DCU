@@ -42,7 +42,7 @@ class TicketController extends Controller
         try {
 
             $data = $request->all();
-            $this->product->create($data);
+            $this->ticket->create($data);
             
             return response()->json(['data' => ApiMessage::responseMessage('Ticket opened successfully', 201)]);
 
