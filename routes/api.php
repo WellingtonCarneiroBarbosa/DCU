@@ -17,3 +17,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::namespace('API')->name('api.')->group(function (){
+    Route::prefix('tickets')->group(function (){
+        Route::get('/', 'TicketController@index')->name('tickets.index');
+
+        Route::get('/{id}', 'TicketController@show')->name('tickets.show');
+
+        Route::post('/', 'TicketController@store')->name('tickets.store');
+    });
+});
