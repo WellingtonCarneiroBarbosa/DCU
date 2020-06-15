@@ -17,4 +17,22 @@ Route::get('/', 'Auth\LoginController@showLoginForm');
 
 Auth::routes(['register' => false, 'reset' => false]);
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
+
+    Route::get('/', 'HomeController@index')->name('home');
+
+    /**
+     * Demands routes
+     * 
+     */
+    Route::namespace('Demands')->group(function (){
+        Route::prefix('demands')->name('demands.')->group(function (){
+            Route::get('/', 'DemandController@index')->name('index');
+
+            Route::get('/create', 'DemandController@create')->name('create');
+
+            Route::post('/', 'DemandController@store')->name('store');
+        });
+    });
+
+});
