@@ -29,10 +29,10 @@ class DemandController extends Controller
         } catch (\Exception $e) {
 
             if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessage($e->getMessage(), 1010));
+                return response()->json(ApiResponses::responseMessage($e->getMessage(), 1010), 500);
             }
 
-            return response()->json(ApiResponses::responseMessage('Error listing demands', 1010));
+            return response()->json(ApiResponses::responseMessage('Error listing demands', 1010), 500);
 
         }
     }
