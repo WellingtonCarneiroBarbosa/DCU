@@ -19,23 +19,46 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::namespace('API')->name('api.')->group(function (){
+
     /**
-     * Tickets routes
+     * JWT Protected Routes
      * 
      */
-    Route::prefix('tickets')->name('tickets.')->group(function (){
-        Route::get('/', 'TicketController@index')->name('index');
+    Route::group(['middleware' => ['jwtToken']], function () {
+        /**
+         * Tickets routes
+         * 
+         */
+        Route::prefix('tickets')->name('tickets.')->group(function (){
+            Route::get('/', 'TicketController@index')->name('index');
 
-        Route::get('/{id}', 'TicketController@show')->name('show');
-
-        Route::post('/', 'TicketController@store')->middleware('apiToken')->name('store');
+            Route::get('/{id}', 'TicketController@show')->name('show');
+        });
     });
+    
+    Route::post('/login', 'AuthController@login')->name('login');
 
     /**
-     * Demands routes
+     * Public routes
      * 
      */
-    Route::prefix('demands')->name('demands.')->group(function (){
-        Route::get('/', 'DemandController@index')->name('index');
+    Route::group(['prefix' => 'public', 'middleware' => 'apiToken'], function () {
+
+
+        /**
+         * Tickets routes
+         * 
+         */
+        Route::prefix('tickets')->name('tickets.')->group(function (){
+            Route::post('/', 'TicketController@store')->name('store');
+        });
+   
+        /**
+         * Demands routes
+         * 
+         */
+        Route::prefix('demands')->name('demands.')->group(function (){
+            Route::get('/', 'DemandController@index')->name('index');
+        });
     });
 });

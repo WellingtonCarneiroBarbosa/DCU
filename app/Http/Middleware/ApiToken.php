@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\API\ApiResponses;
 use Closure;
 
 class ApiToken
@@ -18,9 +19,9 @@ class ApiToken
         $token = $request->token;
 
         if(! $token) {
-            return abort(403);
+            return response()->json(ApiResponses::responseMessage('The access token was not found', 403), 403);
         }else if($token != config('app.support_api_key')) {
-            return abort(403);
+            return response()->json(ApiResponses::responseMessage('The access token is invalid', 403), 403);
         }
 
         return $next($request);

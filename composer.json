@@ -16,7 +16,8 @@
         "laravel/passport": "^9.2",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "lucascudo/laravel-pt-br-localization": "^1.1"
+        "lucascudo/laravel-pt-br-localization": "^1.1",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
