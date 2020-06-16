@@ -28,7 +28,7 @@ Route::namespace('API')->name('api.')->group(function (){
 
         Route::get('/{id}', 'TicketController@show')->name('show');
 
-        Route::post('/', 'TicketController@store')->name('store');
+        Route::post('/', 'TicketController@store')->middleware('apiToken')->name('store');
     });
 
     /**

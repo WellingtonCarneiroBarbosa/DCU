@@ -123,6 +123,12 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    /**
+     * SUPPORT API KEY
+     * 
+     */
+    'support_api_key' => env('API_SUPPORT_KEY'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
