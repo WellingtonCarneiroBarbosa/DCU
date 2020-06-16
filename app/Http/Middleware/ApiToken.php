@@ -19,9 +19,9 @@ class ApiToken
         $token = $request->token;
 
         if(! $token) {
-            return response()->json(ApiResponses::responseMessage('The access token was not found', 403), 403);
+            return response()->json(ApiResponses::responseMessage('The access token was not found', 403));
         }else if($token != config('app.support_api_key')) {
-            return response()->json(ApiResponses::responseMessage('The access token is invalid', 403), 403);
+            return response()->json(ApiResponses::responseMessage('The access token is invalid', 403));
         }
 
         return $next($request);

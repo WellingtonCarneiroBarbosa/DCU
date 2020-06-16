@@ -29,10 +29,10 @@ class TicketController extends Controller
         } catch (\Exception $e) {
 
             if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessage($e->getMessage(), 1010), 500);
+                return response()->json(ApiResponses::responseMessage($e->getMessage(), 500));
             }
 
-            return response()->json(ApiResponses::responseMessage('Error listing ticket', 1010), 500);
+            return response()->json(ApiResponses::responseMessage('Error listing ticket', 500));
 
         }
     }
@@ -49,10 +49,10 @@ class TicketController extends Controller
         } catch (\Exception $e) {
 
             if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($data, $e->getMessage(), 1010), 500);
+                return response()->json(ApiResponses::responseMessageWithData($data, $e->getMessage(), 500));
             }
 
-            return response()->json(ApiResponses::responseMessageWithData($data, 'Error saving ticket', 1010), 500);
+            return response()->json(ApiResponses::responseMessageWithData($data, 'Error saving ticket', 500));
         }
     }
 }
