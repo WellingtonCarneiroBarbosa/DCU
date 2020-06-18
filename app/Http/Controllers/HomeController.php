@@ -26,7 +26,7 @@ class HomeController extends Controller
     public function index()
     {
         /**->orderBy('priority', 'DESC') */
-        $openedTickets = $this->ticket->where('user_id', null)->latest()->paginate(9);
+        $openedTickets = $this->ticket->where('user_id', null)->orderBy('created_at', 'ASC')->paginate(9);
         
         return view('home', [
             'tickets' => $openedTickets

@@ -50,7 +50,17 @@ Route::namespace('API')->name('api.')->group(function (){
          * 
          */
         Route::prefix('tickets')->name('tickets.')->group(function (){
-            Route::post('/', 'TicketController@store')->name('store');
+
+            Route::get('/{clientEmail}', 'TicketController@clientTickets')->name('client');
+
+            Route::get('/{clientEmail}/{ticketID}', 'TicketController@showTicket')->name('show');
+            
+            Route::get('/responses/support/{ticketID}', 'TicketController@responsesFromSuport')->name('responses.from.support');
+            Route::get('/responses/client/{ticketID}', 'TicketController@responsesFromClient')->name('responses.from.client');
+
+            Route::post('/', 'TicketController@store')->name('store'); 
+            Route::post('/responses/client/{ticketID}', 'TicketController@storeClientResponse')->name('store.responses.client');
+
         });
    
         /**

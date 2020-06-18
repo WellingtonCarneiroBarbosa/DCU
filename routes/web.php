@@ -33,6 +33,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
         Route::get('{id}/response', 'TicketController@makeResponse')->name('makeResponse');
 
         Route::post('{id}/response', 'TicketController@response')->name('response');
+
+        Route::get('/processing', 'TicketController@processing')->name('processing');
     });
 
     /**

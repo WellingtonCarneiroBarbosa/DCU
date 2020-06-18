@@ -39,13 +39,14 @@
                     <ul class="navbar-nav mr-auto">
                         {{-- Tickets --}}
                         <li class="nav-item dropdown">
-                            <a id="ticketsDropdown" class="nav-link dropdown-toggle {{ request()->routeIs('home*') ? 'active' : '' }}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                            <a id="ticketsDropdown" class="nav-link dropdown-toggle {{ request()->routeIs('home*') ? 'active' : (request()->routeIs('tickets*') ? 'active' : '') }}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                 Tickets <span class="caret"></span>
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="ticketsDropdown">
                                 <a class="dropdown-item {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Tickets em aberto</a>
-                                <a class="dropdown-item" href="#">Tickets resolvidos</a>
+                                <a class="dropdown-item {{ request()->routeIs('tickets.processing') ? 'active' : '' }}" href="{{ route('tickets.processing') }}">Seus tickets em andamento</a>
+                                <a class="dropdown-item" href="#">Seus tickets resolvidos</a>
                                 <a class="dropdown-item" href="#">Gerenciar tickets</a>
                             </div>
                         </li>

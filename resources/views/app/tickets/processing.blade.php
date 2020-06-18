@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <h5>Tickets em Aberto</h5>
+        <h5>Seus tickets em Andamento</h5>
     </div>
     
         @if(count($tickets) > 0) 
@@ -34,7 +34,7 @@
                     <div class="card-header">Lista de Tickets</div>
 
                     <div class="card-body">
-                        Não há nenhum ticket em aberto no momento.
+                        Não há nenhum ticket em andamento no momento.
                     </div>
                 </div>
             </div>
