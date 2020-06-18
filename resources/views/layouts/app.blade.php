@@ -74,6 +74,19 @@
                             </div>
                         </li>
 
+                        {{-- Sistemas --}}
+                        <li class="nav-item dropdown">
+                            <a id="systemsDropdown" class="nav-link dropdown-toggle {{ request()->routeIs('systems*') ? 'active' : '' }}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Sistemas <span class="caret"></span>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="systemsDropdown">
+                                <a class="dropdown-item {{ request()->routeIs('systems.index') ? 'active' : '' }}" href="{{ route('systems.index') }}">Gerenciar sistemas</a>
+                                <a class="dropdown-item {{ request()->routeIs('systems.create') ? 'active' : '' }}" href="{{ route('systems.create') }}">Cadastrar sistema</a>
+                            </div>
+                        </li>
+                        
+
                     </ul>
                     @endif
 

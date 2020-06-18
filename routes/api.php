@@ -42,7 +42,7 @@ Route::namespace('API')->name('api.')->group(function (){
      * Public routes
      * 
      */
-    Route::group(['prefix' => 'public'], function () {
+    Route::group(['prefix' => 'public', 'middleware' => 'apiToken'], function () {
 
 
         /**

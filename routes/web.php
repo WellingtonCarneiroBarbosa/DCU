@@ -44,4 +44,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
         });
     });
 
+    /**
+     * Systems routes
+     * 
+     */
+    Route::namespace('Systems')->group(function (){
+        Route::resource('systems', 'SystemController', ['except' => ['show', 'edit', 'update']]);
+        Route::get('systems/{token}/confirm/destroy', 'SystemController@confirmDestroy')->name('systems.confirmDestroy');
+    });
 });
