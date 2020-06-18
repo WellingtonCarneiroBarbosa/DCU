@@ -10,8 +10,12 @@
             </div>
             <div class="card-body">
                 <h5>
-                   Atenção! Este sistema será deletado. O sistema não conseguirá mais
-                   realizar contato com a API do {{ config('app.name') }}
+                   Atenção! Este sistema será deletado. O sistema {{ $system->name }} não conseguirá mais
+                   realizar contato com a API do {{ config('app.name') }}.
+
+                   Os usuários do {{ $system->name }} receberão o sistema como indefinido.
+
+                   Há 590 usuários deste sistema cadastrados no {{ config('app.name') }}
                 </h5>
                 <span class="mt-2">Detalhes do sistema</span>
                 <ul>

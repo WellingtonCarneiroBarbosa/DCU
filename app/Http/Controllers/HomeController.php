@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Tickets\Ticket;
 
 class HomeController extends Controller
 {
@@ -11,9 +12,10 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Ticket $ticket)
     {
         $this->middleware('auth');
+        $this->ticket = $ticket;
     }
 
     /**
@@ -23,6 +25,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $openedTickets = $this->ticket->latest()->orderBy('priority', 'DESC')->paginate(9);
+        
+        return view('home', [
+            'tickets' => $openedTickets
+        ]);
     }
 }

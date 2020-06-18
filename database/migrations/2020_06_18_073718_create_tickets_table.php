@@ -15,13 +15,12 @@ class CreateTicketsTable extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('user_name', 255);
-            $table->string('user_system', 255);
             $table->unsignedTinyInteger('demand_id')->nullable();
             $table->foreign('demand_id')->references('id')->on('demands')->onUpdate('cascade')->onDelete('set null');
-            $table->unsignedTinyInteger('responsible_id')->nullable();
-            $table->foreign('responsible_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
-            $table->text('description');
+            $table->foreignId('client_user_id');
+            $table->unsignedTinyInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $table->text('message');
             $table->timestamps();
             $table->softDeletes();
         });
