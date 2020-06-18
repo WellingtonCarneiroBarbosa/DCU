@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header">
                 <a class="float-right" href="{{ route('users.create') }}">Cadastrar Usuário</a>
-                <h3>Lista de Usuários</h3>
+                <h4>Lista de Usuários</h4>
             </div>
             <div class="card-body">
                 @if(count($users) > 0)
@@ -63,7 +63,7 @@
                     </tbody>
                 </table>
                 @else 
-                <h3>Parece que só há você por aqui. Clique <a href="{{ route('users.create') }}">aqui</a> para cadastrar um novo usuário</h3>
+                <h5>Parece que só há você por aqui. Clique <a href="{{ route('users.create') }}">aqui</a> para cadastrar um novo usuário</h5>
                 @endif
             </div>
         </div>

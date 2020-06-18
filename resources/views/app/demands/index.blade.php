@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header">
                 <a class="float-right" href="{{ route('demands.create') }}">Cadastrar Demanda</a>
-                <h3>Lista de Demandas</h3>
+                <h4>Lista de Demandas</h4>
             </div>
             <div class="card-body">
                 @if(count($demands) > 0)
@@ -57,7 +57,7 @@
                     </tbody>
                 </table>
                 @else 
-                <h3>Ainda não há demandas para exibir. Clique <a href="{{ route('demands.create') }}">aqui</a> para cadastrar uma nova demanda</h3>
+                <h5>Ainda não há demandas cadastradas. Clique <a href="{{ route('demands.create') }}">aqui</a> para cadastrar uma nova demanda</h5>
                 @endif
             </div>
         </div>
