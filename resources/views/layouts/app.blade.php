@@ -35,6 +35,7 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
+                    @if(auth()->user())
                     <ul class="navbar-nav mr-auto">
                         {{-- Tickets --}}
                         <li class="nav-item dropdown">
@@ -74,6 +75,7 @@
                         </li>
 
                     </ul>
+                    @endif
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
