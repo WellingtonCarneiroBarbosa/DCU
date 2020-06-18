@@ -26,12 +26,21 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
      * 
      */
     Route::namespace('Demands')->group(function (){
-        Route::prefix('demands')->name('demands.')->group(function (){
-            Route::get('/', 'DemandController@index')->name('index');
+        Route::resource('demands', 'DemandController');
+        Route::get('demands/{id}/confirm/delete', 'DemandController@confirmDelete')->name('demands.confirmDelete');
+    });
 
-            Route::get('/create', 'DemandController@create')->name('create');
+    /**
+     * Users routes
+     * 
+     */
+    Route::namespace('Users')->group(function (){
+        Route::resource('users', 'UserController');
 
-            Route::post('/', 'DemandController@store')->name('store');
+        Route::prefix('users')->name('users.')->group(function (){
+            Route::put('/{id}/restore', 'UserController@restore')->name('restore');
+            Route::get('/{id}/confirm/delete', 'UserController@confirmDelete')->name('confirmDelete');
+            Route::get('/{id}/confirm/restore', 'UserController@confirmRestore')->name('confirmRestore');
         });
     });
 

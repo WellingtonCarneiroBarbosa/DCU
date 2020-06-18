@@ -42,7 +42,7 @@ Route::namespace('API')->name('api.')->group(function (){
      * Public routes
      * 
      */
-    Route::group(['prefix' => 'public', 'middleware' => 'apiToken'], function () {
+    Route::group(['prefix' => 'public'], function () {
 
 
         /**
@@ -59,6 +59,7 @@ Route::namespace('API')->name('api.')->group(function (){
          */
         Route::prefix('demands')->name('demands.')->group(function (){
             Route::get('/', 'DemandController@index')->name('index');
+            Route::post('/', 'DemandController@store')->name('store');
         });
     });
 });

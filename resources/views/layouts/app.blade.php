@@ -16,12 +16,15 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
+    <!-- Icons -->
+    <link rel="stylesheet" href="{{ asset('icons/css/font-awesome.min.css') }}">
+
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/black_app.min.css') }}" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-md navbar-dark shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
@@ -73,6 +76,12 @@
         </nav>
 
         <main class="py-4">
+            @if(session('error'))
+                Ops.. {{ session('error') }}
+            @endif
+            @if(session('success'))
+                {{ session('success') }}
+            @endif
             @yield('content')
         </main>
     </div>

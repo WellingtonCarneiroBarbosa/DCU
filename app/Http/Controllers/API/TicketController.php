@@ -10,8 +10,9 @@ use App\API\ApiResponses;
 class TicketController extends Controller
 {
     /**
-     * @var Ticket
+     * @model Ticket
      * 
+     * @param \App\Models\Tickets\Ticket
      */
     private $ticket;
 
