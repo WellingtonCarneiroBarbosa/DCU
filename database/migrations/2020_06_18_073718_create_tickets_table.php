@@ -17,7 +17,8 @@ class CreateTicketsTable extends Migration
             $table->id();
             $table->unsignedTinyInteger('demand_id')->nullable();
             $table->foreign('demand_id')->references('id')->on('demands')->onUpdate('cascade')->onDelete('set null');
-            $table->foreignId('client_user_id');
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('set null');
             $table->unsignedTinyInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
             $table->text('message');

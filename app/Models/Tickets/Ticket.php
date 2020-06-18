@@ -3,13 +3,18 @@
 namespace App\Models\Tickets;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes; 
 
 class Ticket extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
-        'user_name', 'user_system', 'description',
-        'responsible_id', 'demand_id'
+        'demand_id', 'client_id', 'user_id',
+        'message'
     ];
 
     protected $table = "tickets";
+
+    protected $softDeletes = true;
 }

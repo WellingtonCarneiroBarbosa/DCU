@@ -19,7 +19,21 @@ Auth::routes(['register' => false, 'reset' => false]);
 
 Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
 
+    /**
+     * Opened Tickets
+     */
     Route::get('/', 'HomeController@index')->name('home');
+
+    /**
+     * Tickets Routes
+     * 
+     */
+    Route::namespace('Tickets')->name('tickets.')->prefix('tickets')->group(function (){
+
+        Route::get('{id}/response', 'TicketController@makeResponse')->name('makeResponse');
+
+        Route::post('{id}/response', 'TicketController@response')->name('response');
+    });
 
     /**
      * Demands routes
