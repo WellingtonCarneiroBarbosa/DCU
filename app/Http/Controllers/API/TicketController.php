@@ -3,396 +3,309 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tickets\TicketResponse;
 use Illuminate\Http\Request;
 use App\Models\Tickets\Ticket;
 use App\Models\Clients\Client;
 use App\Models\Systems\System;
 use App\API\ApiResponses;
-use App\Models\Tickets\TicketResponseFromSupport;
-use App\Models\Tickets\TicketResponseFromClient;
 
+/**
+ * Class TicketController
+ * @package App\Http\Controllers\API
+ *
+ */
 class TicketController extends Controller
 {
     /**
-     * @model Ticket
-     * 
-     * @param \App\Models\Tickets\Ticket
+     * Returns a data from a
+     * specific client
+     *
+     * @param $client_email
+     * @param $system_id
+     * @return bool|array
+     *
      */
-    private $ticket, $client, $system;
-
-    public function __construct(Ticket $ticket, Client $client, System $system)
+    static function getClientByEmail($client_email, $system_id)
     {
-        $this->ticket = $ticket;
-        $this->client = $client;
-        $this->system = $system;
+        try {
+            $client = Client::where('email', $client_email)->where('system_id', $system_id)->take(1)->get();
+
+            if(count($client) != 1) {
+                return false;
+            }
+
+            foreach($client as $c)
+            {
+                $client_id = $c->id;
+            }
+
+            return $client_id;
+        } catch (\Exception $exception) {
+            if(config('app.debug')) {
+                return $exception->getMessage();
+            }
+
+            return false;
+        }
     }
 
-    public function index()
+    /**
+     * Returns system ID by providing
+     * the system token identifier
+     *
+     * @param $token
+     * @return bool|string
+     */
+    static function getSystemIDBySystemTokenIdentifier($token)
+    {
+        try {
+            $system = System::where('token', $token)->take(1)->get();
+
+            if(! $system) {
+                return false;
+            }
+
+            foreach($system as $s)
+            {
+                $system_id = $s->id;
+            }
+
+            return $system_id;
+        } catch (\Exception $exception) {
+
+            if(config('app.debug')) {
+                return $exception->getMessage();
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * @param $ticket_id
+     * @return bool|string
+     */
+    static function getOpenedTicketByID($ticket_id)
+    {
+        try {
+            $ticket = Ticket::find($ticket_id);
+
+            if(! $ticket) {
+                return false;
+            }
+
+            return $ticket;
+        } catch (\Exception $exception) {
+            if(config('app.debug')) {
+                return $exception->getMessage();
+            }
+
+            return false;
+        }
+    }
+
+
+    /**
+     * Returns all tickets for a client from
+     * specific system
+     *
+     * @param $client_email
+     * @param Request $request
+     * @param Ticket $ticket
+     * @return array|\Illuminate\Http\JsonResponse
+     */
+    public function getClientTickets($client_email, Request $request, Ticket $ticket)
     {
         try {
 
-            return response()->json(ApiResponses::responseData($this->ticket->paginate(5), 200));
+            $system_id = $this->getSystemIDBySystemTokenIdentifier($request['token']);
 
+            $client_id = $this->getClientByEmail($client_email, $system_id);
+
+            if(! $client_id) {
+                 return response()->json(ApiResponses::responseMessageWithData($client_email, 'No client found with this email and system token', 204));
+            }
+
+            $tickets = $ticket->withTrashed()->where('client_id', $client_id)->get();
+
+            if(count($tickets) <= 0 ) {
+                return response()->json(ApiResponses::responseMessage('No tickets found', 204));
+            }
+
+            return ApiResponses::responseMessageWithData($tickets, 'Tickets get successfully', 200);
         } catch (\Exception $e) {
-
             if(config('app.debug')) {
                 return response()->json(ApiResponses::responseMessage($e->getMessage(), 500));
             }
 
-            return response()->json(ApiResponses::responseMessage('Error listing ticket', 500));
-
+            return response()->json(ApiResponses::responseMessage('Error getting client tickets', 500));
         }
     }
 
-    public function store(Request $request)
+    /**
+     * Open a ticket.
+     *
+     * Parameters [
+     *  Client => name, email, message,
+     *  Demand => demand_id
+     * ]
+     *
+     * @param Request $request
+     * @param Client $client
+     * @param Ticket $ticket
+     * @return array|\Illuminate\Http\JsonResponse
+     */
+    public function openTicket(Request $request, Client $client, Ticket $ticket)
     {
         try {
+            $required_parameters = ['name', 'email', 'message', 'demand_id'];
 
-            /**
-             * Quando a api receber a solicitação,
-             * ela verificará se o usuário que está
-             * realizando o pedido já está cadastrado. 
-             * 
-             * Se sim, ela prossegue e abre o ticket para este usuário.
-             * 
-             * Se não, cadastra o usuário e então, prossegue e abre o ticket
-             * 
-             */
-
-            $data = $request->all();
-
-            if(! $data['name']) {
-                return response()->json(ApiResponses::responseMessageWithData($data, 'The user name was not found!', 403));
-            }
-
-            if(! $data['email']) {
-                return response()->json(ApiResponses::responseMessageWithData($data, 'The user email was not found!', 403));
-            }
-
-            /**
-             * Tenta encontrar o cliente pelo email
-             * 
-             */
-            $client = $this->client->where('email', $data['email'])->take(1)->get();
-
-            /**
-             * Se nao encontrar, cadastra
-             */
-            if(count($client) != 1) 
+            foreach ($required_parameters as $required_parameter)
             {
+                if (! $request[$required_parameter]) {
+                    return response()->json(ApiResponses::responseMessageWithData($request->all(),'Missing required parameters. Your request must have: name, email, message, demand_id', 500));
+                }
+            }
+
+            $system_id = $this->getSystemIDBySystemTokenIdentifier($request['token']);
+
+            $client_id = $this->getClientByEmail($request['email'], $system_id);
+
+            /**
+             * Create client in database
+             *
+             */
+            if(! $client_id) {
                 try {
-
-                    /**
-                     * Recupera os dados do sistema pelo token
-                     * 
-                     */
-                    $system = $this->system->where('token', $data['token'])->take(1)->get();
-
-                    foreach($system as $s) {
-                        $system_id = $s->id;
-                    }
-
-                    $dataClient = [
-                        'name' => $data['name'],
-                        'email' => $data['email'],
+                    $client_id = $client->create([
+                        'name' => $request['name'],
+                        'email' => $request['email'],
                         'system_id' => $system_id,
-                    ];
-
-                    $client = $this->client->create($dataClient);
-
-                    $clientID = $client->id;
-                
-                } catch(\Exception $e) {
+                    ])->id;
+                } catch (\Exception $e) {
                     if(config('app.debug')) {
-                        return response()->json(ApiResponses::responseMessageWithData($client, $e->getMessage(), 500));
+                        return ApiResponses::responseMessage($e->getMessage(), 500);
                     }
-        
-                    return response()->json(ApiResponses::responseMessageWithData($client, 'Error registering client', 500));
-                }
-            }else {
-                /**
-                 * Pega o id do cliente
-                 * encontrado
-                 * 
-                 */
-                foreach($client as $c) {
-                    $clientID = $c->id;
+
+                    return ApiResponses::responseMessage('Error saving client in database', 500);
                 }
             }
 
-            $dataTicket = [
-                'demand_id' => $data['demand_id'],
-                'client_id' => $clientID,
-                'message' => $data['message'],
-            ];
+            $ticket->create([
+                'demand_id' => $request['demand_id'],
+                'client_id' => $client_id,
+                'message' => $request['message'],
+            ]);
 
-            $this->ticket->create($dataTicket);
-            
             return response()->json(ApiResponses::responseMessage('Ticket opened successfully', 201));
-
         } catch (\Exception $e) {
-
             if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($data, $e->getMessage(), 500));
+                return response()->json(ApiResponses::responseMessageWithData($request->all(), $e->getMessage(), 500));
             }
 
-            return response()->json(ApiResponses::responseMessageWithData($data, 'Error saving ticket', 500));
-        }
-    }
-
-    /**
-     * Save response from client
-     * 
-     */
-    public function storeClientResponse($ticketID, Request $request)
-    {
-        try {
-
-            /**
-             * Verify if has any ticket opened with
-             * this id
-             * 
-             */
-            $ticket = $this->ticket->where('id', $ticketID)->get();
-
-            if(count($ticket) != 1) {
-                return response()->json(ApiResponses::responseMessageWithData($ticketID, 'No opened ticket was found with this id', 204));
-            }
-
-            $data = $request->all();
-
-            $data['ticket_id'] = $ticketID;
-
-            TicketResponseFromClient::create($data);
-
-            return response()->json(ApiResponses::responseMessage('Ticket response save successfully', 201));
-
-        } catch (\Exception $e) {
-
-            if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($data, $e->getMessage(), 500));
-            }
-
-            return response()->json(ApiResponses::responseMessageWithData($data, 'Error saving ticket response', 500));
-        }
-    }
-
-    /**
-     * Tickets response from support 
-     * 
-     */
-    public function responsesFromSuport($ticketID)
-    {
-        try {
-            $responsesFromSupport = TicketResponseFromSupport::where('ticket_id', $ticketID)->get();
-
-            if(count($responsesFromSupport) <= 0) 
-            {
-                return response()->json(ApiResponses::responseMessage('There is No response from support team', 204));
-            }
-
-            return response()->json(ApiResponses::responseData($responsesFromSupport, 200));
-        } catch (\Exception $e) {
-
-            if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($ticketID, $e->getMessage(), 500));
-            }
-
-            return response()->json(ApiResponses::responseMessageWithData($ticketID, 'Error getting support team responses for this ticket', 500));   
-        
-        }
-    }
-
-    /**
-     * Tickets response from client 
-     * 
-     */
-    public function responsesFromClient($ticketID)
-    {
-        try {
-            $responsesFromClient = TicketResponseFromClient::where('ticket_id', $ticketID)->get();
-
-            if(count($responsesFromClient) <= 0) 
-            {
-                return response()->json(ApiResponses::responseMessage('There is No response from client', 204));
-            }
-
-            return response()->json(ApiResponses::responseData($responsesFromClient, 200));
-        } catch (\Exception $e) {
-
-            if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($ticketID, $e->getMessage(), 500));
-            }
-
-            return response()->json(ApiResponses::responseMessageWithData($ticketID, 'Error getting client responses for this ticket', 500));   
-        
-        }
-    }
-
-    /**
-     * Ticket for a client
-     * 
-     */
-    public function clientTickets($clientEmail, Request $request)
-    {
-        try {
-
-            /**
-             * Recupera o ID do sistema do cliente
-             * 
-             */
-            $systemTOKEN = $request->token;
-
-            $system = $this->system->where('token', $systemTOKEN)->take(1)->get();
-
-            foreach($system as $s)
-            {
-                $systemID = $s->id;
-            }
-
-            /***
-             * Tenta encontra o cliente
-             * 
-             */
-
-            $client = $this->client->where('email', $clientEmail)->where('system_id', $systemID)->take(1)->get();
-
-            if(count($client) <= 0) {
-                return response()->json(ApiResponses::responseMessageWithData($clientEmail, 'No cliente was found with this email', 204));
-            }
-
-            /**
-             * Get ID of this client
-             * 
-             */
-            foreach($client as $c) 
-            {
-                $clientID = $c->id;
-            } 
-
-            /**
-             * Get tickets
-             * 
-             */
-            $tickets = Ticket::withTrashed()->where('client_id', $clientID)->get();
-
-            if(count($tickets) <= 0) 
-            {
-                return response()->json(ApiResponses::responseMessage('This client has No ticket', 204));
-            }
-
-            return response()->json(ApiResponses::responseData($tickets, 200));
-
-        } catch(\Exception $e) {
-
-            if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($clientEmail, $e->getMessage(), 500));
-            }
-
-            return response()->json(ApiResponses::responseMessageWithData($clientEmail, 'Error getting tickets of this client', 500));   
-        
+            return response()->json(ApiResponses::responseMessageWithData($request->all(), 'Error opening ticket', 500));
         }
     }
 
     /**
      * Close a ticket
-     * 
+     *
+     * @param $ticket_id
+     * @param Ticket $ticket
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function closeTicket($ticketID) 
-    {
+    public  function  closeTicket($ticket_id, Ticket $ticket) {
         try {
-            $this->ticket->destroy($ticketID);
-        } catch (\Exception $e) {
+            $ticket_to_close = $this->getOpenedTicketByID($ticket_id);
 
-            if(config('app.debug')) {
-                return response()->json(ApiResponses::responseMessageWithData($ticketID, $e->getMessage(), 500));
+            if(! $ticket_to_close) {
+                return response()->json(ApiResponses::responseMessageWithData($ticket_id, 'This ticket is already closed or does not exist', 500));
             }
 
-            return response()->json(ApiResponses::responseMessageWithData($ticketID, 'Error closing ticket', 500));   
-        
+            $ticket->destroy($ticket_id);
+
+            return response()->json(ApiResponses::responseMessage('Ticket closed successfully', 200));
+        } catch (Exception $exception) {
+            if(config('app.debug')) {
+                return response()->json(ApiResponses::responseMessageWithData($ticket_id, $exception->getMessage(), 500));
+            }
+
+            return response()->json(ApiResponses::responseMessageWithData($ticket_id, 'Error closing ticket', 500));
         }
     }
 
-    public function showTicket($clientEmail, $ticketID, Request $request)
+    /**
+     * Returns infos and responses of a ticket
+     * by providing ticket id
+     *
+     * @param $ticket_id
+     * @param Ticket $ticket
+     * @param TicketResponse $ticketResponse
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllTicketInfos($ticket_id, Ticket $ticket, TicketResponse $ticketResponse)
     {
         try {
+            $ticket_infos = $ticket->withTrashed()->find($ticket_id);
 
-            /**
-             * Recupera o ID do sistema do cliente
-             * 
-             */
-            $systemTOKEN = $request->token;
-
-            $system = $this->system->where('token', $systemTOKEN)->take(1)->get();
-
-            foreach($system as $s)
-            {
-                $systemID = $s->id;
+            if(! $ticket_infos) {
+                return response()->json(ApiResponses::responseMessage('This ticket does not exist', 404));
             }
 
-            /***
-             * Tenta encontra o cliente
-             * 
-             */
+            $ticket_responses = $ticketResponse->where('ticket_id', $ticket_id)->get();
 
-            $client = $this->client->where('email', $clientEmail)->where('system_id', $systemID)->take(1)->get();
+            $response_data = ['ticket_infos' => $ticket_infos, 'ticket_responses' => $ticket_responses];
 
-            if(count($client) <= 0) {
-                return response()->json(ApiResponses::responseMessageWithData($clientEmail, 'No cliente was found with this email', 204));
+            return response()->json(ApiResponses::responseData($response_data, 200));
+        } catch (\Exception $exception) {
+            if(config('app.debug')) {
+                return response()->json(ApiResponses::responseMessageWithData($ticket_id, $exception->getMessage(), 500));
             }
 
-            /**
-             * Get ID of this client
-             * 
-             */
-            foreach($client as $c) 
-            {
-                $clientID = $c->id;
-            } 
+            return response()->json(ApiResponses::responseMessageWithData($ticket_id, 'Error getting ticket infos', 500));
+        }
+    }
 
-            /**
-             * Get ticket
-             * 
-             */
-            $ticket = Ticket::withTrashed()->where('id', $ticketID)->where('client_id', $clientID)->take(1)->get();
+    /**
+     * Save a client response
+     * in database
+     *
+     * Parameters = [
+     *  ticket_id, client_id, responsible_id, message
+     * ]
+     *
+     * @param Request $request
+     * @param TicketResponse $ticketResponse
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function  storeClientResponse(Request $request, TicketResponse $ticketResponse)
+    {
+        try {
+            $required_parameters = ['ticket_id', 'client_id', 'responsible_id', 'message'];
 
-            if(count($ticket) != 1) 
+            foreach ($required_parameters as $required_parameter)
             {
-                return response()->json(ApiResponses::responseMessage('This client has No ticket', 204));
+                if (! $request[$required_parameter]) {
+                    return response()->json(ApiResponses::responseMessageWithData($request->all(),'Missing required parameters. Your request must have: ticket_id, client_id, responsible_id, message' , 500));
+                }
             }
 
-            /**
-             * Get support responses for 
-             * this ticket
-             * 
-             */
-            $responsesFromSupport = TicketResponseFromSupport::where('ticket_id', $ticketID)->get();
+            $isTicketValid = $this->getOpenedTicketByID($request['ticket_id']);
 
+            if(! $isTicketValid) {
+                return response()->json(ApiResponses::responseMessageWithData($request->all(), 'This ticket is closed or does not exist', 500));
+            }
 
+            $ticketResponse->create($request->all());
 
-             /**
-              * Get client responses 
-              * for this ticket
-              *
-              */
-            $responsesFromClient = TicketResponseFromClient::where('ticket_id', $ticketID)->get();
-
-            $response = [
-                'ticket' => $ticket,
-                'responsesFromSupport' => $responsesFromSupport,
-                'responsesFromClient' => $responsesFromClient,
-            ];
-
-            return response()->json(ApiResponses::responseData($response, 200));
-
-        } catch(\Exception $e) {
-
+            return response()->json(ApiResponses::responseMessage('Response save successfully', 204));
+        } catch (\Exception $e) {
             if(config('app.debug')) {
                 return response()->json(ApiResponses::responseMessageWithData($request->all(), $e->getMessage(), 500));
             }
 
-            return response()->json(ApiResponses::responseMessageWithData($request->all(), 'Error geting ticket informations', 500));  
-
+            return response()->json(ApiResponses::responseMessageWithData($request->all(), 'Error saving response', 500));
         }
     }
 }

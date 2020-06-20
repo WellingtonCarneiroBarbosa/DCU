@@ -22,50 +22,54 @@ Route::namespace('API')->name('api.')->group(function (){
 
     /**
      * JWT Protected Routes
-     * 
+     *
      */
     Route::group(['middleware' => ['jwtToken']], function () {
-        /**
-         * Tickets routes
-         * 
-         */
-        Route::prefix('tickets')->name('tickets.')->group(function (){
-            Route::get('/', 'TicketController@index')->name('index');
 
-            Route::get('/{id}', 'TicketController@show')->name('show');
-        });
     });
-    
-    Route::post('/login', 'AuthController@login')->name('login');
 
     /**
-     * Public routes
-     * 
+     * Endpoints consumed by
+     * others systems
+     *
      */
-    Route::group(['prefix' => 'public', 'middleware' => 'apiToken'], function () {
+    Route::group(['middleware' => 'apiToken'], function () {
 
+        Route::prefix('tickets')->name('tickets.')->group(function (){
+
+            Route::get('/{clientEmail}', 'TicketController@getClientTickets');
+
+            Route::get('/info/{ticketID}', 'TicketController@getAllTicketInfos');
+
+            Route::post('/', 'TicketController@openTicket');
+
+            Route::post('/client-response', 'TicketController@storeClientResponse');
+
+            Route::delete('/close/{ticketID}', 'TicketController@closeTicket');
+        });
 
         /**
          * Tickets routes
-         * 
-         */
+         *
+
         Route::prefix('tickets')->name('tickets.')->group(function (){
 
             Route::get('/{clientEmail}', 'TicketController@clientTickets')->name('client');
 
             Route::get('/{clientEmail}/{ticketID}', 'TicketController@showTicket')->name('show');
-            
+
             Route::get('/responses/support/{ticketID}', 'TicketController@responsesFromSuport')->name('responses.from.support');
             Route::get('/responses/client/{ticketID}', 'TicketController@responsesFromClient')->name('responses.from.client');
 
-            Route::post('/', 'TicketController@store')->name('store'); 
+            Route::post('/', 'TicketController@store')->name('store');
             Route::post('/responses/client/{ticketID}', 'TicketController@storeClientResponse')->name('store.responses.client');
 
         });
-   
+         *  */
+
         /**
          * Demands routes
-         * 
+         *
          */
         Route::prefix('demands')->name('demands.')->group(function (){
             Route::get('/', 'DemandController@index')->name('index');
