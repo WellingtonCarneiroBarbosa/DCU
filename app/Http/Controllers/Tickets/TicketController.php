@@ -5,66 +5,126 @@ namespace App\Http\Controllers\Tickets;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Tickets\Ticket;
-use App\Models\Tickets\TicketResponseFromSupport;
+use App\Models\Tickets\TicketResponse;
+use SebastianBergmann\Type\ObjectType;
 
 class TicketController extends Controller
 {
-    private $ticket, $ticketResponse;
+    /**
+     * @var Ticket
+     *
+     */
+    private $ticket;
 
-    public function __construct(Ticket $ticket, TicketResponseFromSupport $ticketResponse)
+    /**
+     * TicketController constructor.
+     * @param Ticket $ticket
+     *
+     */
+    public function __construct(Ticket $ticket)
     {
         $this->ticket = $ticket;
-        $this->ticketResponse = $ticketResponse;
     }
 
-    public function makeResponse($id)
+    /**
+     * Show opened tickets.
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getOpenedTickets()
     {
-        $ticket = $this->ticket->findOrFail($id);
+        $tickets = $this->ticket->where('user_id', null)->orderBy('created_at', 'DESC')->paginate(6);
 
-        return view('app.tickets.response', [
+        $qtd_in_progress_tickets = $this->ticket->where('user_id', auth()->user()->id)->count();
+        
+        return view('home', [
+            'tickets' => $tickets, 'qtd_in_progress_tickets' => $qtd_in_progress_tickets
+        ]);
+    }
+
+    public function showTicket($ticket_id)
+    {
+        $ticket = $this->ticket->withTrashed()->findOrFail($ticket_id);
+
+        return view('app.tickets.show', [
             'ticket' => $ticket
         ]);
     }
 
+    public function getTicketMessages($ticket_id)
+    {
+        $ticket = $this->ticket->withTrashed()->findOrFail($ticket_id);
 
-    /**
-     * Return form to response
-     * a ticket
-     * 
-     */
-    public function response(Request $request, $id) {
-        try {
-            $ticket = $this->ticket->findOrFail($id);
+        $ticket_messages = TicketResponse::latest()->where('ticket_id', $ticket_id)->paginate(5);
 
-            $data = $request->all();
+        return view('app.tickets.messages', [
+            'ticket' => $ticket, 'ticket_messages' => $ticket_messages
+        ]);
+    }
 
-            $data['ticket_id'] = $id;
-    
-            $reponse = $this->ticketResponse->create($data);
+    public function getInProgressTickets()
+    {
+        $tickets = $this->ticket->where('user_id', auth()->user()->id)->orderBy('updated_at', 'DESC')->paginate(6);
 
-            $ticket->update(['user_id' => auth()->user()->id]);
-    
-            return "ticket respondido com sucesso.";
-        } catch (\Exception $e) {
-            if(config('app.debug')) {
-                return $e->getMessage();
-            }
+        return view('app.tickets.inProgress', [
+            'tickets' => $tickets
+        ]);
+    }
 
-            return "erro ao responder ticket :v";
-        }
+    public function getClosedTickets()
+    {
+        $tickets = $this->ticket->onlyTrashed()->where('user_id', auth()->user()->id)->paginate(6);
+
+        return view('app.tickets.solved', [
+            'tickets' => $tickets
+        ]);
     }
 
     /**
-     * Return tickets in processing
-     * of the auth user
-     * 
+     * @param $ticket_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function processing ()
+    public  function getResponseTicketView($ticket_id)
     {
-        $tickets = $this->ticket->where('user_id', auth()->user()->id)->orderBy('created_at', 'ASC')->paginate(9);
+        $ticket = $this->ticket->findOrFail($ticket_id);
 
-        return view('app.tickets.processing', [
-            'tickets' => $tickets
+        $responses = TicketResponse::latest()->get();
+
+        return view('app.tickets.response', [
+            'ticket' => $ticket, 'responses' => $responses
         ]);
+    }
+
+    public function responseTicket(Request $request, $ticket_id)
+    {
+        $ticket = $this->ticket->findOrFail($ticket_id);
+
+        try {
+            $response = TicketResponse::create([
+                'client_id' => $ticket['client_id'],
+                'responsible_id' => auth()->user()->id,
+                'ticket_id' => $ticket_id,
+                'message' => $request['message']
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        /**
+         * If it does not has
+         * a responsible
+         *
+         */
+        $ticket_data = $ticket->getAttributes();
+        if(! $ticket_data['user_id']) {
+            try {
+                $ticket_data['user_id'] = auth()->user()->id;
+                $this->ticket->findOrFail($ticket_id)->update($ticket_data);
+            } catch (\Exception $e) {
+                return $e->getMessage();
+            }
+        }
+
+        return redirect()->route('tickets.messages', [$ticket_id])->with(['success' => 'Resposta enviada com sucesso!']);
     }
 }

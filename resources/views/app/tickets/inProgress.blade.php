@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <h5>Seus tickets em Andamento</h5>
+        <h5>Tickets em andamento</h5>
     </div>
     
         @if(count($tickets) > 0) 
@@ -17,8 +17,8 @@
                         <div class="row">Mensagem: {{ $tk->message }}</div>
                         <div class="row">Aberto por {{ $tk->client_id }} em {{ $tk->created_at }}</div>
                         <div class="row">
-                            <a href="{{ route('tickets.response', [$tk->id]) }}">
-                                <button class="btn btn-primary">Responder</button>
+                            <a href="{{ route('tickets.show', [$tk->id]) }}">
+                                <button class="btn btn-primary">Visualizar</button>
                             </a>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                     <div class="card-header">Lista de Tickets</div>
 
                     <div class="card-body">
-                        Não há nenhum ticket em andamento no momento.
+                        Não há tickets em andamento no momento.
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <h5>Tickets em Aberto</h5>
+        <h5>Tickets resolvidos</h5>
     </div>
     
         @if(count($tickets) > 0) 
@@ -15,7 +15,7 @@
 
                     <div class="card-body">
                         <div class="row">Mensagem: {{ $tk->message }}</div>
-                        <div class="row">Aberto por {{ $tk->client_id }} em {{ $tk->created_at }}</div>
+                        <div class="row">Resolvido em: {{ $tk->deleted_at }}</div>
                         <div class="row">
                             <a href="{{ route('tickets.show', [$tk->id]) }}">
                                 <button class="btn btn-primary">Visualizar</button>
@@ -34,10 +34,7 @@
                     <div class="card-header">Lista de Tickets</div>
 
                     <div class="card-body">
-                        Não há tickets em aberto no momento.
-                        @if($qtd_in_progress_tickets != 0)
-                        Você possui {{ $qtd_in_progress_tickets }} ticket(s) em andamento
-                        @endif
+                        Não há tickets resolvidos para exibir.
                     </div>
                 </div>
             </div>

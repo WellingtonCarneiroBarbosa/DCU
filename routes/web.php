@@ -22,24 +22,30 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
     /**
      * Opened Tickets
      */
-    Route::get('/', 'HomeController@index')->name('home');
+    Route::get('/', 'Tickets\TicketController@getOpenedTickets')->name('home');
 
     /**
      * Tickets Routes
-     * 
+     *
      */
     Route::namespace('Tickets')->name('tickets.')->prefix('tickets')->group(function (){
 
-        Route::get('{id}/response', 'TicketController@makeResponse')->name('makeResponse');
+        Route::get('/in-progress', 'TicketController@getInProgressTickets')->name('in.progress');
 
-        Route::post('{id}/response', 'TicketController@response')->name('response');
+        Route::get('/closed', 'TicketController@getClosedTickets')->name('closed');
 
-        Route::get('/processing', 'TicketController@processing')->name('processing');
+        Route::get('/show/{id}', 'TicketController@showTicket')->name('show');
+
+        Route::get('/response/{id}', 'TicketController@getResponseTicketView')->name('response.view');
+
+        Route::post('/response/{id}', 'TicketController@responseTicket')->name('response');
+
+        Route::get('/messages/{id}', 'TicketController@getTicketMessages')->name('messages');
     });
 
     /**
      * Demands routes
-     * 
+     *
      */
     Route::namespace('Demands')->group(function (){
         Route::resource('demands', 'DemandController');
@@ -48,7 +54,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
 
     /**
      * Users routes
-     * 
+     *
      */
     Route::namespace('Users')->group(function (){
         Route::resource('users', 'UserController');
@@ -62,7 +68,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
 
     /**
      * Systems routes
-     * 
+     *
      */
     Route::namespace('Systems')->group(function (){
         Route::resource('systems', 'SystemController', ['except' => ['show', 'edit', 'update']]);

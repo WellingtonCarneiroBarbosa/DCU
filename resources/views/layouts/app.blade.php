@@ -45,9 +45,9 @@
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="ticketsDropdown">
                                 <a class="dropdown-item {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Tickets em aberto</a>
-                                <a class="dropdown-item {{ request()->routeIs('tickets.processing') ? 'active' : '' }}" href="{{ route('tickets.processing') }}">Seus tickets em andamento</a>
-                                <a class="dropdown-item" href="#">Seus tickets resolvidos</a>
-                                <a class="dropdown-item" href="#">Gerenciar tickets</a>
+                                <a class="dropdown-item {{ request()->routeIs('tickets.in.progress') ? 'active' : '' }}" href="{{ route('tickets.in.progress') }}">Tickets em andamento</a>
+                                <a class="dropdown-item {{ request()->routeIs('tickets.closed') ? 'active' : '' }}" href="{{ route('tickets.closed') }}">Tickets resolvidos</a>
+                                {{-- <a class="dropdown-item" href="#">Gerenciar tickets</a> --}}
                             </div>
                         </li>
         
