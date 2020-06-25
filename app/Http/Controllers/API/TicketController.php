@@ -253,7 +253,7 @@ class TicketController extends Controller
                 return response()->json(ApiResponses::responseMessage('This ticket does not exist', 404));
             }
 
-            $ticket_responses = $ticketResponse->where('ticket_id', $ticket_id)->get();
+            $ticket_responses = $ticketResponse->latest()->where('ticket_id', $ticket_id)->get();
 
             $response_data = ['ticket_infos' => $ticket_infos, 'ticket_responses' => $ticket_responses];
 
