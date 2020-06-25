@@ -86,6 +86,10 @@
                                 <a class="dropdown-item {{ request()->routeIs('systems.create') ? 'active' : '' }}" href="{{ route('systems.create') }}">Cadastrar sistema</a>
                             </div>
                         </li>
+
+
+                        {{-- Clientes --}}
+                        <a href="{{ route('clients.index') }}" class="nav-item nav-link">Clientes</a>
                         
 
                     </ul>

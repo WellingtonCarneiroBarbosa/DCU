@@ -74,4 +74,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'dash'], function () {
         Route::resource('systems', 'SystemController', ['except' => ['show', 'edit', 'update']]);
         Route::get('systems/{token}/confirm/destroy', 'SystemController@confirmDestroy')->name('systems.confirmDestroy');
     });
+
+    /**
+     * Client Routes
+     *
+     */
+    Route::namespace('Clients')->prefix('clients')->name('clients.')->group(function (){
+        Route::get('/', 'ClientController@getAllClients')->name('index');
+    });
 });

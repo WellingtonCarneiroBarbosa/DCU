@@ -17,10 +17,8 @@ class CreateTicketResponsesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('ticket_id')->nullable();
             $table->foreign('ticket_id')->references('id')->on('tickets')->onUpdate('cascade')->onDelete('set null');
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade')->onDelete('set null');
-            $table->unsignedTinyInteger('responsible_id')->nullable();
-            $table->foreign('responsible_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $table->string('client_id', 1)->nullable();
+            $table->string('responsible_id', 1)->nullable();
             $table->text('message');
             $table->timestamps();
         });

@@ -14,14 +14,14 @@
                    <div class="card-body">
                        <h6>Sobre o cliente:</h6>
                        <ul>
-                           <li>Nome do Cliente:</li>
-                           <li>E-mail do Cliente:</li>
-                           <li>Sistema do Cliente:</li>
+                           <li>Nome: {{ $ticket->client['name'] }}</li>
+                           <li>E-mail: {{ $ticket->client['email'] }}</li>
+                           <li>Sistema: {{ $ticket->client->system['name'] }}</li>
                        </ul>
                        <h6>Sobre o ticket:</h6>
                        <ul>
                            <li>Ticket ID: {{ $ticket->id }}</li>
-                           <li>Categoria: {{ $ticket->demand_id }}</li>
+                           <li>Categoria: {{ $ticket->demand['demand'] }}</li>
                            <li>
                                Status: 
                                @if(! $ticket->user_id)

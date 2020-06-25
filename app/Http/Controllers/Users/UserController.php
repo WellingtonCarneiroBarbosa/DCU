@@ -26,7 +26,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = $this->user->withTrashed()->where('id', '!=', auth()->user()->id)->latest()->get();
+        $users = $this->user->withTrashed()->where('id', '!=', auth()->user()->id)->latest()->paginate();
 
         return view('app.users.index', [
             'users' => $users

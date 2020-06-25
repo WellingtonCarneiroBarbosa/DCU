@@ -73,7 +73,6 @@ Route::namespace('API')->name('api.')->group(function (){
          */
         Route::prefix('demands')->name('demands.')->group(function (){
             Route::get('/', 'DemandController@index')->name('index');
-            Route::post('/', 'DemandController@store')->name('store');
         });
     });
 });

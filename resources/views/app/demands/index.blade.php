@@ -54,6 +54,7 @@
                             </td>
                         </tr>
                         @endforeach
+                        {{ $demands->links() }}
                     </tbody>
                 </table>
                 @else 

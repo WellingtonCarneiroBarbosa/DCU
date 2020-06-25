@@ -33,10 +33,10 @@ class TicketController extends Controller
      */
     public function getOpenedTickets()
     {
-        $tickets = $this->ticket->where('user_id', null)->orderBy('created_at', 'DESC')->paginate(6);
+        $tickets = $this->ticket->with('client')->with('demand')->where('user_id', null)->orderBy('created_at', 'DESC')->paginate(6);
 
         $qtd_in_progress_tickets = $this->ticket->where('user_id', auth()->user()->id)->count();
-        
+
         return view('home', [
             'tickets' => $tickets, 'qtd_in_progress_tickets' => $qtd_in_progress_tickets
         ]);
@@ -44,7 +44,7 @@ class TicketController extends Controller
 
     public function showTicket($ticket_id)
     {
-        $ticket = $this->ticket->withTrashed()->findOrFail($ticket_id);
+        $ticket = $this->ticket->with('client')->with('demand')->withTrashed()->findOrFail($ticket_id);
 
         return view('app.tickets.show', [
             'ticket' => $ticket
@@ -64,7 +64,7 @@ class TicketController extends Controller
 
     public function getInProgressTickets()
     {
-        $tickets = $this->ticket->where('user_id', auth()->user()->id)->orderBy('updated_at', 'DESC')->paginate(6);
+        $tickets = $this->ticket->where('user_id', auth()->user()->id)->with('client')->with('demand')->orderBy('updated_at', 'DESC')->paginate(6);
 
         return view('app.tickets.inProgress', [
             'tickets' => $tickets
@@ -73,7 +73,7 @@ class TicketController extends Controller
 
     public function getClosedTickets()
     {
-        $tickets = $this->ticket->onlyTrashed()->where('user_id', auth()->user()->id)->paginate(6);
+        $tickets = $this->ticket->onlyTrashed()->with('client')->with('demand')->where('user_id', auth()->user()->id)->paginate(6);
 
         return view('app.tickets.solved', [
             'tickets' => $tickets
@@ -101,8 +101,7 @@ class TicketController extends Controller
 
         try {
             $response = TicketResponse::create([
-                'client_id' => $ticket['client_id'],
-                'responsible_id' => auth()->user()->id,
+                'responsible_id' => 1,
                 'ticket_id' => $ticket_id,
                 'message' => $request['message']
             ]);

@@ -11,20 +11,19 @@
             @foreach($tickets as $tk)
             <div class="col-md-4 mb-2">
                 <div class="card">
-                    <div class="card-header">Demanda: {{ $tk->demand_id }}</div>
+                    <div class="card-header">Demanda: {{ $tk->demand['demand'] }}</div>
 
                     <div class="card-body">
-                        <div class="row">Mensagem: {{ $tk->message }}</div>
-                        <div class="row">Aberto por {{ $tk->client_id }} em {{ $tk->created_at }}</div>
-                        <div class="row">
-                            <a href="{{ route('tickets.show', [$tk->id]) }}">
-                                <button class="btn btn-primary">Visualizar</button>
-                            </a>
-                        </div>
+                        <div class="row mb-2">Mensagem: {{ $tk->message }}</div>
+                        <div class="row mb-2">Aberto por <u class="mr-1 ml-1">{{ $tk->client['name'] }}</u> {{ $tk->created_at->diffForHumans() }}</div>
+                        <a href="{{ route('tickets.show', [$tk->id]) }}">
+                            <button class="btn btn-primary">Visualizar</button>
+                        </a>
                     </div>
                 </div>
             </div>
-        @endforeach
+            @endforeach
+        </div>
         {{ $tickets->links() }}
         </div>
         @else 

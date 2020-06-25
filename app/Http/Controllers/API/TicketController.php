@@ -18,7 +18,7 @@ use App\API\ApiResponses;
 class TicketController extends Controller
 {
     /**
-     * Returns a data from a
+     * Returns data from a
      * specific client
      *
      * @param $client_email
@@ -247,7 +247,7 @@ class TicketController extends Controller
     public function getAllTicketInfos($ticket_id, Ticket $ticket, TicketResponse $ticketResponse)
     {
         try {
-            $ticket_infos = $ticket->withTrashed()->find($ticket_id);
+            $ticket_infos = $ticket->withTrashed()->with('client')->with('demand')->find($ticket_id);
 
             if(! $ticket_infos) {
                 return response()->json(ApiResponses::responseMessage('This ticket does not exist', 404));
@@ -282,12 +282,12 @@ class TicketController extends Controller
     public function  storeClientResponse(Request $request, TicketResponse $ticketResponse)
     {
         try {
-            $required_parameters = ['ticket_id', 'client_id', 'responsible_id', 'message'];
+            $required_parameters = ['ticket_id', 'message'];
 
             foreach ($required_parameters as $required_parameter)
             {
                 if (! $request[$required_parameter]) {
-                    return response()->json(ApiResponses::responseMessageWithData($request->all(),'Missing required parameters. Your request must have: ticket_id, client_id, responsible_id, message' , 500));
+                    return response()->json(ApiResponses::responseMessageWithData($request->all(),'Missing required parameters. Your request must have: ticket_id, message' , 500));
                 }
             }
 
@@ -299,7 +299,7 @@ class TicketController extends Controller
 
             $ticketResponse->create($request->all());
 
-            return response()->json(ApiResponses::responseMessage('Response save successfully', 204));
+            return response()->json(ApiResponses::responseMessage('Response save successfully', 201));
         } catch (\Exception $e) {
             if(config('app.debug')) {
                 return response()->json(ApiResponses::responseMessageWithData($request->all(), $e->getMessage(), 500));

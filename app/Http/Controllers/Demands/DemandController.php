@@ -27,7 +27,7 @@ class DemandController extends Controller
      */
     public function index()
     {
-        $demands = $this->demand->latest()->get();
+        $demands = $this->demand->latest()->paginate(10);
 
         return view('app.demands.index', [
             'demands' => $demands

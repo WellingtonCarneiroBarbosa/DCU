@@ -32,6 +32,7 @@
                             </td>
                         </tr>
                         @endforeach
+                        {{ $systems->links() }}
                     </tbody>
                 </table>
                 @else 
