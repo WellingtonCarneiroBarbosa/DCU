@@ -24,6 +24,6 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
-        "vue-append": "^2.0.0"
+        "vue-append": "^2.2.0"
     }
 }
